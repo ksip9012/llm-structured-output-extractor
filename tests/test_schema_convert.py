@@ -48,6 +48,29 @@ def test_converts_nullable_string_type_array():
     assert prop.nullable is True
 
 
+def test_embeds_date_format_hint_into_description():
+    """Gemini の Schema は format: "date" を解釈しないため、
+    description に形式を明記してモデルに伝える必要がある
+    （実 API 検証で YYYYMMDD 表記が返る不具合があったための回帰テスト）。"""
+    schema = {
+        "type": "object",
+        "properties": {
+            "extracted_date": {
+                "type": ["string", "null"],
+                "format": "date",
+                "description": "ファイル名から抽出した日付",
+            },
+        },
+        "required": ["extracted_date"],
+    }
+
+    result = to_gemini_schema(schema)
+
+    description = result.properties["extracted_date"].description
+    assert "ファイル名から抽出した日付" in description
+    assert "YYYY-MM-DD" in description
+
+
 def test_converts_nullable_integer_type_array():
     schema = {
         "type": "object",

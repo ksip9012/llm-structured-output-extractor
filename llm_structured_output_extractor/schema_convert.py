@@ -13,14 +13,20 @@ _TYPE_MAP = {
     "object": types.Type.OBJECT,
 }
 
+_FORMAT_HINTS = {
+    "date": "YYYY-MM-DD形式の文字列で返すこと",
+    "date-time": "ISO 8601形式の日時文字列で返すこと",
+}
+
 
 def _convert_property(prop_schema: dict[str, Any]) -> types.Schema:
     """JSON Schema のプロパティ定義1件を Gemini の Schema に変換する。
 
     `type: ["string", "null"]` のような nullable 表現は、Gemini の
     `nullable` フィールドに変換する。`format`（例: `"date"`）は Gemini の
-    STRING 型では `"enum"` / `"date-time"` 以外の値が未サポートのため、
-    プロンプト・description 側の指示に委ね、変換時には引き継がない。
+    STRING 型では `"enum"` / `"date-time"` 以外の値が未サポートのため
+    schema には引き継がず、`description` に文言として埋め込むことで
+    モデルに形式を伝える。
     """
     json_type = prop_schema["type"]
     nullable = False
@@ -36,10 +42,17 @@ def _convert_property(prop_schema: dict[str, Any]) -> types.Schema:
 
     if nullable:
         schema.nullable = True
-    if "description" in prop_schema:
-        schema.description = prop_schema["description"]
     if "enum" in prop_schema:
         schema.enum = prop_schema["enum"]
+
+    description = prop_schema.get("description", "")
+    format_hint = _FORMAT_HINTS.get(prop_schema.get("format"))
+    if format_hint and description:
+        description = f"{description}（{format_hint}）"
+    elif format_hint:
+        description = format_hint
+    if description:
+        schema.description = description
     return schema
 
 

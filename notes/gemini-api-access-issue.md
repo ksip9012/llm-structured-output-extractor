@@ -1,4 +1,9 @@
-# Gemini API 実呼び出しがブロックされている件（2026-09-27時点）
+# Gemini API 実呼び出しがブロックされていた件（解決済み）
+
+> **解決（2026-09-27）**: AI Studio の API キーではなく、GCP プロジェクト
+> `test-adk-479704` に対する Vertex AI 経由の認証に切り替えて解決した。
+> 詳細は [decisions/0005](../decisions/0005-use-vertex-ai-auth.md) を参照。
+> 以下は解決前の調査記録として残す。
 
 ## 事象
 

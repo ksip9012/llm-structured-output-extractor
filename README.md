@@ -4,7 +4,7 @@ Gemini API の Structured Output（`response_schema`）機能を使い、ファ�
 
 ## デモ
 
-> ⚠️ 現在使用している Gemini API キーは、モデルの新規ユーザー提供終了・プリペイド残高不足により実 API 呼び出しがブロックされている（[notes/gemini-api-access-issue.md](./notes/gemini-api-access-issue.md) 参照）。以下は `schema.json` に準拠した想定される出力形式であり、実 API での動作確認はまだ済んでいない。
+Vertex AI 経由（[decisions/0005](./decisions/0005-use-vertex-ai-auth.md)）で実際に動作確認済み。
 
 ```console
 $ python -m llm_structured_output_extractor fixtures/sample_folder
@@ -14,7 +14,7 @@ $ python -m llm_structured_output_extractor fixtures/sample_folder
     "extension": ".md",
     "is_multi_extension": false,
     "size_bytes": 0,
-    "modified_at": "2026-09-27T21:30:00.123456",
+    "modified_at": "2026-09-27T15:02:09.076000",
     "extracted_date": null,
     "category": "document",
     "is_hidden": false,
@@ -64,6 +64,7 @@ $ python -m llm_structured_output_extractor fixtures/sample_folder
 - [0002](./decisions/0002-reuse-step1a1-schema-and-fixtures.md): Step1-A1 の schema.json・fixtures を再利用
 - [0003](./decisions/0003-use-gemini-for-structured-output.md): LLM プロバイダに Gemini API を採用（Claude API との比較）
 - [0004](./decisions/0004-mock-llm-responses-in-tests.md): 自動テストでは LLM 応答をモックする
+- [0005](./decisions/0005-use-vertex-ai-auth.md): Gemini API への認証は Vertex AI（プロジェクトベース）を使う
 
 ## セットアップ手順
 
@@ -73,7 +74,16 @@ source .venv/bin/activate
 pip install google-genai jsonschema pytest ruff
 ```
 
-Gemini API を実際に呼び出すには、環境変数 `GEMINI_API_KEY` の設定が必要（[google-genai](https://pypi.org/project/google-genai/) が自動的に読み込む）。
+Gemini API を実際に呼び出すには、Vertex AI 経由の認証が必要
+（[decisions/0005](./decisions/0005-use-vertex-ai-auth.md)）。
+
+```bash
+gcloud auth application-default login
+
+export GOOGLE_GENAI_USE_VERTEXAI=true
+export GOOGLE_CLOUD_PROJECT=test-adk-479704
+export GOOGLE_CLOUD_LOCATION=us-central1
+```
 
 ## 使い方
 
@@ -104,6 +114,6 @@ pytest
 
 ## 今後の展望・既知の制約
 
-- 現在の Gemini API キーでは、モデルの新規ユーザー提供終了・プリペイド残高不足により実 API 呼び出しがまだ確認できていない（[notes/gemini-api-access-issue.md](./notes/gemini-api-access-issue.md)）。billing 設定後に実 API での動作確認・レイテンシ計測を行う
-- Step1-A1（ルールベース）との精度・レイテンシ・実装コストの比較は、実 API 確認後にまとめる予定
+- Step1-A1（ルールベース）との精度比較を実施済み（[notes/step1a1-vs-step1a2-accuracy.md](./notes/step1a1-vs-step1a2-accuracy.md)）。`extracted_date` など仕様が明確な項目は12件全一致したが、`word_count`・`normalized_title` のような曖昧さの残る項目では、Gemini が意味的に拡大解釈する差異が見られた
+- レイテンシ・実装コストの詳細な比較はまだ行っていない
 - 次のステップ（Step1-B）では、スキーマ自体も LLM に考えさせる自由入力の JSON 化に発展する

@@ -7,7 +7,7 @@ from typing import Any
 from google import genai
 from google.genai import types
 
-DEFAULT_MODEL = os.environ.get("GEMINI_MODEL", "gemini-3.8-flash")
+DEFAULT_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
 
 _PROMPT_TEMPLATE = (
     "次のファイル名を分析し、指定されたスキーマの各項目を抽出してください。\n"
