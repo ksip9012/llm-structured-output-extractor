@@ -34,7 +34,10 @@ export GOOGLE_CLOUD_LOCATION=us-central1
 （サービスアカウントキーファイルの発行・管理は行わない）。
 
 使用モデルも、Vertex AI 側でまだ提供されていなかった `gemini-3.8-flash` から、
-動作確認できた `gemini-2.5-flash` に変更した。
+動作確認できた `gemini-2.5-flash` に変更した
+（その後 [0006](./0006-upgrade-to-gemini-3-5-flash.md) で `gemini-3.5-flash` /
+`location=global` に切り替えている。ここでの `us-central1` / `gemini-2.5-flash`
+という記述は決定当時の記録として残す）。
 
 ## Consequences
 - AI Studio 側のプリペイド課金設定を待たずに開発を進められる

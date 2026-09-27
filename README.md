@@ -65,6 +65,7 @@ $ python -m llm_structured_output_extractor fixtures/sample_folder
 - [0003](./decisions/0003-use-gemini-for-structured-output.md): LLM プロバイダに Gemini API を採用（Claude API との比較）
 - [0004](./decisions/0004-mock-llm-responses-in-tests.md): 自動テストでは LLM 応答をモックする
 - [0005](./decisions/0005-use-vertex-ai-auth.md): Gemini API への認証は Vertex AI（プロジェクトベース）を使う
+- [0006](./decisions/0006-upgrade-to-gemini-3-5-flash.md): 使用モデルを gemini-2.5-flash から gemini-3.5-flash に切り替える
 
 ## セットアップ手順
 
@@ -82,7 +83,7 @@ gcloud auth application-default login
 
 export GOOGLE_GENAI_USE_VERTEXAI=true
 export GOOGLE_CLOUD_PROJECT=test-adk-479704
-export GOOGLE_CLOUD_LOCATION=us-central1
+export GOOGLE_CLOUD_LOCATION=global
 ```
 
 ## 使い方
