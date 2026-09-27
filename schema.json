@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MappedFile",
+  "description": "フォルダ内の1ファイルをルールベースで構造化した結果のスキーマ",
+  "type": "object",
+  "properties": {
+    "file_name": {
+      "type": "string",
+      "description": "元のファイル名（拡張子含む）"
+    },
+    "extension": {
+      "type": "string",
+      "description": "拡張子（末尾のみ。例: .txt）。拡張子がない場合は空文字列"
+    },
+    "is_multi_extension": {
+      "type": "boolean",
+      "description": "複数の拡張子を持つか（例: archive.tar.gz）"
+    },
+    "size_bytes": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "ファイルサイズ（バイト）"
+    },
+    "modified_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "最終更新日時（ISO 8601）"
+    },
+    "extracted_date": {
+      "type": ["string", "null"],
+      "format": "date",
+      "description": "ファイル名から抽出した日付。見つからない場合は null"
+    },
+    "category": {
+      "type": "string",
+      "enum": ["document", "image", "archive", "other"],
+      "description": "拡張子から分類したファイル種別"
+    },
+    "is_hidden": {
+      "type": "boolean",
+      "description": "ファイル名が . で始まるか"
+    },
+    "word_count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "区切り文字（アンダースコア・ハイフン・スペース）で分割した単語数"
+    },
+    "has_version_suffix": {
+      "type": "boolean",
+      "description": "_v1 のようなバージョン表記を含むか"
+    },
+    "duplicate_index": {
+      "type": ["integer", "null"],
+      "description": "(1) のような連番表記の番号。なければ null"
+    },
+    "separator_style": {
+      "type": "string",
+      "enum": ["underscore", "hyphen", "space", "mixed", "none"],
+      "description": "ファイル名で使われている区切り文字の種類"
+    },
+    "normalized_title": {
+      "type": "string",
+      "description": "拡張子・日付・バージョン表記などを取り除いた実質的なタイトル部分"
+    }
+  },
+  "required": [
+    "file_name",
+    "extension",
+    "is_multi_extension",
+    "size_bytes",
+    "modified_at",
+    "extracted_date",
+    "category",
+    "is_hidden",
+    "word_count",
+    "has_version_suffix",
+    "duplicate_index",
+    "separator_style",
+    "normalized_title"
+  ],
+  "additionalProperties": false
+}
