@@ -4,7 +4,7 @@ Gemini API の Structured Output（`response_schema`）機能を使い、ファ�
 
 ## デモ
 
-Vertex AI 経由（[decisions/0005](./decisions/0005-use-vertex-ai-auth.md)）で実際に動作確認済み。
+Vertex AI 経由・`gemini-3.8-flash`（[decisions/0007](./decisions/0007-upgrade-to-gemini-3-8-flash.md)）で実際に動作確認済み。
 
 ```console
 $ python -m llm_structured_output_extractor fixtures/sample_folder
