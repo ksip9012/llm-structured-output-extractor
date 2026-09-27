@@ -66,6 +66,7 @@ $ python -m llm_structured_output_extractor fixtures/sample_folder
 - [0004](./decisions/0004-mock-llm-responses-in-tests.md): 自動テストでは LLM 応答をモックする
 - [0005](./decisions/0005-use-vertex-ai-auth.md): Gemini API への認証は Vertex AI（プロジェクトベース）を使う
 - [0006](./decisions/0006-upgrade-to-gemini-3-5-flash.md): 使用モデルを gemini-2.5-flash から gemini-3.5-flash に切り替える
+- [0007](./decisions/0007-upgrade-to-gemini-3-8-flash.md): 使用モデルを gemini-3.5-flash から gemini-3.8-flash に切り替える
 
 ## セットアップ手順
 

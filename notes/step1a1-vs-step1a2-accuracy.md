@@ -41,6 +41,15 @@ Vertex AI（`gemini-2.5-flash`、decisions/0005、`location=us-central1`）経�
 文字列を削ってしまう」という同じ傾向によるもので、モデル世代が変わっても
 解消していない。
 
+## gemini-3.8-flash への切り替え後（decisions/0007, 2026-09-27）
+
+「`gemini-3.8-flash-lite` が最新では」という指摘を受けて調査したところ、
+汎用テキストモデルとしての `-lite` 版は存在せず、`gemini-3.8-flash`（lite なし）
+が実際の最新モデルだった。同じ12件で実行した結果、`gemini-3.5-flash` と
+**完全に同一の結果**（`word_count` 全一致、`normalized_title` の不一致も
+同じ3件）になった。今回のタスクでは 3.5 → 3.8 による精度差は見られなかったが、
+将来的なモデル提供終了リスクを避けるため、デフォルトは `gemini-3.8-flash` にした。
+
 ## 解釈
 
 `extracted_date` / `category` / `is_hidden` / `has_version_suffix` /
