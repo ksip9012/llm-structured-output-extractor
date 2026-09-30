@@ -32,6 +32,10 @@ $ python -m llm_structured_output_extractor fixtures/sample_folder
 
 「自由入力をどう構造化データに落とし込むか」を学ぶ3ステップのうち、Step1-A2（LLM の Structured Output 機能を使った構造化）にあたる。Step1-A1 と同じ `schema.json` ・ `fixtures/` を使い、抽出方法だけを「ルールベースの正規表現」から「LLM への Structured Output 呼び出し」に差し替えることで、両者を同じ土俵で比較できるようにしている（[decisions/0002](./decisions/0002-reuse-step1a1-schema-and-fixtures.md)）。
 
+1. Step1-A1: [json-schema-mapper](https://github.com/ksip9012/json-schema-mapper) — ルールベースで JSON に構造化する
+2. **本プロジェクト（Step1-A2）**: 固定スキーマを LLM の Structured Output 機能で埋める
+3. Step1-B: [llm-json-extractor](https://github.com/ksip9012/llm-json-extractor) — スキーマ自体も LLM に設計させ、自由入力を JSON 化する
+
 ## 主な機能
 
 - フォルダを指定して実行し（`python -m llm_structured_output_extractor <folder>`）、フォルダ内の全ファイルを構造化した JSON 配列を標準出力に出力する
