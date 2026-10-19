@@ -121,5 +121,5 @@ pytest
 ## 今後の展望・既知の制約
 
 - Step1-A1（ルールベース）との精度比較を実施済み（[notes/step1a1-vs-step1a2-accuracy.md](./notes/step1a1-vs-step1a2-accuracy.md)）。`extracted_date` など仕様が明確な項目は12件全一致したが、`word_count`・`normalized_title` のような曖昧さの残る項目では、Gemini が意味的に拡大解釈する差異が見られた
-- レイテンシ・実装コストの詳細な比較はまだ行っていない
+- Step1 シリーズ全体での精度・コスト・処理時間の横断比較は [json-schema-mapper の notes/step1-comparison.md](https://github.com/ksip9012/json-schema-mapper/blob/main/notes/step1-comparison.md) にまとめた。1件あたり中央値 5.8 秒・約 $0.002 で、思考トークンが料金の 7割ほどを占めた。3回測ったところ、年月だけの日付（`2026-03`）を日付とみなすかが回によって揺れた
 - 次のステップ（Step1-B）では、スキーマ自体も LLM に考えさせる自由入力の JSON 化に発展する
