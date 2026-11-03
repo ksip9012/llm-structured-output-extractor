@@ -3,6 +3,12 @@ from google.genai import types
 from llm_structured_output_extractor.schema_convert import to_gemini_schema
 
 
+def _prop(schema: types.Schema, name: str) -> types.Schema:
+    """オブジェクト型の Schema から、プロパティ name の Schema を取り出す。"""
+    assert schema.properties is not None
+    return schema.properties[name]
+
+
 def test_converts_plain_string_and_boolean_properties():
     schema = {
         "type": "object",
@@ -22,9 +28,9 @@ def test_converts_plain_string_and_boolean_properties():
     result = to_gemini_schema(schema)
 
     assert result.type == types.Type.OBJECT
-    assert result.properties["category"].type == types.Type.STRING
-    assert result.properties["category"].description == "分類"
-    assert result.properties["is_hidden"].type == types.Type.BOOLEAN
+    assert _prop(result, "category").type == types.Type.STRING
+    assert _prop(result, "category").description == "分類"
+    assert _prop(result, "is_hidden").type == types.Type.BOOLEAN
     assert result.required == ["category", "is_hidden"]
     assert result.property_ordering == ["category", "is_hidden"]
 
@@ -43,7 +49,7 @@ def test_converts_nullable_string_type_array():
 
     result = to_gemini_schema(schema)
 
-    prop = result.properties["extracted_date"]
+    prop = _prop(result, "extracted_date")
     assert prop.type == types.Type.STRING
     assert prop.nullable is True
 
@@ -66,7 +72,8 @@ def test_embeds_date_format_hint_into_description():
 
     result = to_gemini_schema(schema)
 
-    description = result.properties["extracted_date"].description
+    description = _prop(result, "extracted_date").description
+    assert description is not None
     assert "ファイル名から抽出した日付" in description
     assert "YYYY-MM-DD" in description
 
@@ -82,7 +89,7 @@ def test_converts_nullable_integer_type_array():
 
     result = to_gemini_schema(schema)
 
-    prop = result.properties["duplicate_index"]
+    prop = _prop(result, "duplicate_index")
     assert prop.type == types.Type.INTEGER
     assert prop.nullable is True
 
@@ -101,7 +108,7 @@ def test_carries_over_enum_values():
 
     result = to_gemini_schema(schema)
 
-    assert result.properties["category"].enum == [
+    assert _prop(result, "category").enum == [
         "document",
         "image",
         "archive",

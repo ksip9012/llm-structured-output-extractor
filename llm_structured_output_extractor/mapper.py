@@ -5,7 +5,6 @@ import json
 from pathlib import Path
 from typing import Any
 
-from google import genai
 from jsonschema import validate
 
 from llm_structured_output_extractor.file_lister import (
@@ -13,6 +12,7 @@ from llm_structured_output_extractor.file_lister import (
     list_files,
 )
 from llm_structured_output_extractor.gemini_client import extract_fields
+from llm_structured_output_extractor.llm_client import LLMClient
 from llm_structured_output_extractor.schema_convert import to_gemini_schema
 
 _SCHEMA_PATH = Path(__file__).resolve().parent.parent / "schema.json"
@@ -32,19 +32,15 @@ _LLM_FIELDS = [
 
 _LLM_SCHEMA_JSON = {
     "type": "object",
-    "properties": {
-        name: _SCHEMA["properties"][name] for name in _LLM_FIELDS
-    },
-    "required": [
-        name for name in _SCHEMA["required"] if name in _LLM_FIELDS
-    ],
+    "properties": {name: _SCHEMA["properties"][name] for name in _LLM_FIELDS},
+    "required": [name for name in _SCHEMA["required"] if name in _LLM_FIELDS],
 }
 
 _LLM_SCHEMA = to_gemini_schema(_LLM_SCHEMA_JSON)
 
 
 def map_file(
-    path: str | Path, *, client: genai.Client | None = None
+    path: str | Path, *, client: LLMClient | None = None
 ) -> dict[str, Any]:
     """1つのファイルを schema.json に準拠した辞書に構造化する。
 
@@ -55,7 +51,7 @@ def map_file(
 
     Args:
         path: 対象ファイルのパス。
-        client: gemini_client.extract_fields に渡す genai.Client。
+        client: gemini_client.extract_fields に渡すクライアント。
             省略時は環境変数から生成される（テストではモックを注入する）。
 
     Returns:
@@ -80,14 +76,14 @@ def map_file(
 
 
 def map_folder(
-    folder: str | Path, *, client: genai.Client | None = None
+    folder: str | Path, *, client: LLMClient | None = None
 ) -> list[dict[str, Any]]:
     """フォルダ直下にあるファイルを、それぞれ schema.json に準拠した
     辞書に構造化したリストを取得する。
 
     Args:
         folder: 対象フォルダのパス。
-        client: `map_file` に渡す genai.Client。
+        client: `map_file` に渡すクライアント。
 
     Returns:
         `map_file` の戻り値をファイル名の昇順に並べたリスト。

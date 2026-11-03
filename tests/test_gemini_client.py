@@ -1,11 +1,16 @@
 """Gemini API 呼び出しのテスト。実 API は呼ばず、モッククライアントで
 リクエスト内容・レスポンス解釈を検証する（decisions/0004 参照）。"""
 
-from types import SimpleNamespace
+from dataclasses import dataclass
 
 from google.genai import types
 
 from llm_structured_output_extractor.gemini_client import extract_fields
+
+
+@dataclass
+class _FakeResponse:
+    text: str | None
 
 
 class _FakeModels:
@@ -17,7 +22,7 @@ class _FakeModels:
         self.calls.append(
             {"model": model, "contents": contents, "config": config}
         )
-        return SimpleNamespace(text=self.response_text)
+        return _FakeResponse(text=self.response_text)
 
 
 class _FakeClient:
