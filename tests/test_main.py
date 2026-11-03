@@ -3,7 +3,7 @@
 
 import json
 from pathlib import Path
-from types import SimpleNamespace
+from dataclasses import dataclass
 
 import pytest
 
@@ -27,9 +27,14 @@ _STATIC_LLM_RESPONSE = json.dumps(
 )
 
 
+@dataclass
+class _FakeResponse:
+    text: str | None
+
+
 class _FakeModels:
     def generate_content(self, *, model, contents, config):
-        return SimpleNamespace(text=_STATIC_LLM_RESPONSE)
+        return _FakeResponse(text=_STATIC_LLM_RESPONSE)
 
 
 class _FakeClient:

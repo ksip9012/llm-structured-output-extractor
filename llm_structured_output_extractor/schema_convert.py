@@ -46,7 +46,7 @@ def _convert_property(prop_schema: dict[str, Any]) -> types.Schema:
         schema.enum = prop_schema["enum"]
 
     description = prop_schema.get("description", "")
-    format_hint = _FORMAT_HINTS.get(prop_schema.get("format"))
+    format_hint = _FORMAT_HINTS.get(prop_schema.get("format", ""))
     if format_hint and description:
         description = f"{description}（{format_hint}）"
     elif format_hint:

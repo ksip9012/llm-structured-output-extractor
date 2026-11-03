@@ -1,0 +1,43 @@
+[project]
+name = "llm-structured-output-extractor"
+version = "0.1.0"
+description = ""
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+  "google-genai>=2.25",
+  "httpx>=0.28",
+  "jsonschema>=4.26",
+]
+
+[dependency-groups]
+dev = [
+  "pre-commit",
+  "pyright",
+  "pytest",
+  "ruff",
+]
+
+[tool.uv]
+# パッケージとして配らず、リポジトリの直下の llm_structured_output_extractor/ をそのまま使う
+package = false
+
+[tool.ruff]
+line-length = 79
+
+[tool.ruff.lint]
+# ひな形に置き換えたときの厳しさは今のまま。ルールを増やすのは別の Issue で行う
+select = ["E", "W", "F"]
+
+[tool.pyright]
+# まず basic から始める。strict にするのは別の Issue で行う
+typeCheckingMode = "basic"
+include = ["llm_structured_output_extractor", "tests", "scripts", "conftest.py"]
+exclude = ["**/__pycache__", "**/.venv"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+  "slow: 重いテスト（pre-commit と CI の check では動かさない）",
+  "integration: 外部サービスに依存するテスト",
+]

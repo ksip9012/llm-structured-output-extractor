@@ -4,7 +4,7 @@ schema.json 検証ロジックを検証する（decisions/0004 参照）。"""
 
 import json
 from pathlib import Path
-from types import SimpleNamespace
+from dataclasses import dataclass
 
 import pytest
 
@@ -138,11 +138,16 @@ _CANNED_LLM_RESULTS = {
 }
 
 
+@dataclass
+class _FakeResponse:
+    text: str | None
+
+
 class _FakeModels:
     def generate_content(self, *, model, contents, config):
         for filename, fields in _CANNED_LLM_RESULTS.items():
             if filename in contents:
-                return SimpleNamespace(text=json.dumps(fields))
+                return _FakeResponse(text=json.dumps(fields))
         raise AssertionError(f"no canned response for prompt: {contents!r}")
 
 
