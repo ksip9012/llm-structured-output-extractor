@@ -12,7 +12,7 @@ Google AI Studio の API キー（`GEMINI_API_KEY`、開発者向け Gemini API�
 - `gemini-2.5-flash` 系: 404（新規ユーザー向け提供終了）
 - `gemini-3.8-flash` / `gemini-flash-latest`: 402（プリペイド残高の枯渇）
 
-一方、GCP プロジェクト `test-adk-479704`（アカウント: ksiper9012@gmail.com）では
+一方、個人の GCP プロジェクトでは
 `aiplatform.googleapis.com`（Vertex AI）・`generativelanguage.googleapis.com` が
 どちらも有効化されており、`gcloud auth application-default login` 済みの
 Application Default Credentials（ADC）が使える状態だった。
@@ -26,7 +26,7 @@ Gemini API へのアクセスは、AI Studio の API キーではなく、Vertex
 
 ```bash
 export GOOGLE_GENAI_USE_VERTEXAI=true
-export GOOGLE_CLOUD_PROJECT=test-adk-479704
+export GOOGLE_CLOUD_PROJECT=your-project-id
 export GOOGLE_CLOUD_LOCATION=us-central1
 ```
 

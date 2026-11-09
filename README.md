@@ -92,7 +92,7 @@ Gemini API を実際に呼び出すには、Vertex AI 経由の認証が必要
 gcloud auth application-default login
 
 export GOOGLE_GENAI_USE_VERTEXAI=true
-export GOOGLE_CLOUD_PROJECT=test-adk-479704
+export GOOGLE_CLOUD_PROJECT=your-project-id
 export GOOGLE_CLOUD_LOCATION=global
 ```
 
