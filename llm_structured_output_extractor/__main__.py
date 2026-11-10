@@ -27,6 +27,15 @@ def main() -> None:
     results = map_folder(folder)
     print(json.dumps(results, ensure_ascii=False, indent=2))
 
+    failed = [result for result in results if "error" in result]
+    if failed:
+        for result in failed:
+            print(
+                f"エラー: {result['file_name']}: {result['error']}",
+                file=sys.stderr,
+            )
+        raise SystemExit(1)
+
 
 if __name__ == "__main__":
     main()

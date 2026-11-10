@@ -5,7 +5,9 @@ import json
 from pathlib import Path
 from typing import Any
 
-from jsonschema import validate
+import httpx
+from google.genai import errors
+from jsonschema import ValidationError, validate
 
 from llm_structured_output_extractor.file_lister import (
     get_file_info,
@@ -37,6 +39,15 @@ _LLM_SCHEMA_JSON = {
 }
 
 _LLM_SCHEMA = to_gemini_schema(_LLM_SCHEMA_JSON)
+
+# 1ファイルの失敗として記録し、次のファイルに進むエラー
+# （API のエラー、通信のエラー、スキーマ違反、応答が空・JSON でない）
+_FILE_ERRORS = (
+    errors.APIError,
+    httpx.TransportError,
+    ValidationError,
+    ValueError,
+)
 
 
 def map_file(
@@ -82,15 +93,28 @@ def map_folder(
     """フォルダ直下にあるファイルを、それぞれ schema.json に準拠した
     辞書に構造化したリストを取得する。
 
+    1ファイルの失敗では止まらず、失敗したファイルは `file_name` と
+    `error` だけを持つ辞書としてリストに残す。
+
     Args:
         folder: 対象フォルダのパス。
         client: `map_file` に渡すクライアント。
 
     Returns:
-        `map_file` の戻り値をファイル名の昇順に並べたリスト。
+        `map_file` の戻り値（失敗したファイルはエラーの辞書）を
+        ファイル名の昇順に並べたリスト。
     """
     folder_path = Path(folder)
-    return [
-        map_file(folder_path / name, client=client)
-        for name in list_files(folder_path)
-    ]
+    results: list[dict[str, Any]] = []
+    for name in list_files(folder_path):
+        try:
+            results.append(map_file(folder_path / name, client=client))
+        except _FILE_ERRORS as error:
+            message = str(error).splitlines()[0] if str(error) else ""
+            results.append(
+                {
+                    "file_name": name,
+                    "error": f"{type(error).__name__}: {message}",
+                }
+            )
+    return results

@@ -67,3 +67,20 @@ def test_extract_fields_uses_given_model_name():
     )
 
     assert fake_client.models.calls[0]["model"] == "gemini-test-model"
+
+
+def test_extract_fields_creates_client_with_retry_options(monkeypatch):
+    created = {}
+
+    def fake_client_factory(**kwargs):
+        created.update(kwargs)
+        return _FakeClient('{"category": "document", "is_hidden": false}')
+
+    monkeypatch.setattr(
+        "llm_structured_output_extractor.gemini_client.genai.Client",
+        fake_client_factory,
+    )
+
+    extract_fields("notes.txt", _SCHEMA)
+
+    assert created["http_options"].retry_options is not None

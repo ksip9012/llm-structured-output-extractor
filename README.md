@@ -42,6 +42,7 @@ $ python -m llm_structured_output_extractor fixtures/sample_folder
 - 1ファイルを受け取り、[`schema.json`](./schema.json) に定義した13項目の構造化データに変換する（`map_file()`）
 - `file_name` / `extension` / `is_multi_extension` / `size_bytes` / `modified_at` はコード側で直接算出し、残り8項目（`extracted_date` など）はファイル名を Gemini API に渡して Structured Output 機能で抽出する
 - 組み立てた結果を `schema.json` に対して検証する
+- 1ファイルの失敗では止まらず、失敗したファイルは `file_name` と `error` だけの項目として結果に残し、終了コード 1 で終わる。API の 429・5xx は再試行する
 - 自動テストでは実 API を呼ばず、モッククライアントで固定応答を返す（[decisions/0004](./decisions/0004-mock-llm-responses-in-tests.md)）
 
 ## アーキテクチャ・技術スタック

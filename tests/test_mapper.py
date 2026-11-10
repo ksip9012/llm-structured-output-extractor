@@ -7,6 +7,7 @@ from pathlib import Path
 from dataclasses import dataclass
 
 import pytest
+from google.genai import errors
 
 from llm_structured_output_extractor.mapper import map_file, map_folder
 
@@ -217,3 +218,38 @@ def test_map_folder_returns_all_files_sorted_by_name(fake_client):
     )
     assert len(results) == 12
     assert {r["file_name"] for r in results} == set(_CANNED_LLM_RESULTS)
+
+
+@pytest.mark.parametrize(
+    "failure",
+    [
+        errors.ServerError(
+            503,
+            {"error": {"code": 503, "message": "x", "status": "UNAVAILABLE"}},
+        ),
+        _FakeResponse(text=None),
+        _FakeResponse(text="not json"),
+        _FakeResponse(text='{"category": "other"}'),
+    ],
+    ids=["api_error", "empty", "invalid_json", "schema_violation"],
+)
+def test_map_folder_records_error_and_continues(failure):
+    class _Models(_FakeModels):
+        def generate_content(self, *, model, contents, config):
+            if "notes.txt" not in contents:
+                return super().generate_content(
+                    model=model, contents=contents, config=config
+                )
+            if isinstance(failure, Exception):
+                raise failure
+            return failure
+
+    class _Client:
+        models = _Models()
+
+    results = map_folder(FIXTURES_DIR, client=_Client())
+
+    assert len(results) == 12
+    failed = [r for r in results if "error" in r]
+    assert [r["file_name"] for r in failed] == ["notes.txt"]
+    assert set(failed[0]) == {"file_name", "error"}
