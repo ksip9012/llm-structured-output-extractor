@@ -13,6 +13,9 @@ from llm_structured_output_extractor.llm_client import (
 
 DEFAULT_MODEL = os.environ.get("GEMINI_MODEL", "gemini-3.8-flash")
 
+# 408・429・5xx を、SDK の既定（最大 5回まで、間隔を広げながら）で再試行する
+_HTTP_OPTIONS = types.HttpOptions(retry_options=types.HttpRetryOptions())
+
 _PROMPT_TEMPLATE = (
     "次のファイル名を分析し、指定されたスキーマの各項目を抽出してください。\n"
     "ファイル名: {filename}"
@@ -41,7 +44,7 @@ def extract_fields(
     Returns:
         schema の各プロパティに対応する値を持つ辞書。
     """
-    client = client or genai.Client()
+    client = client or genai.Client(http_options=_HTTP_OPTIONS)
     response = client.models.generate_content(
         model=model,
         contents=_PROMPT_TEMPLATE.format(filename=filename),

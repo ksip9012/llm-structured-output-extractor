@@ -60,6 +60,38 @@ def test_main_prints_json_array_for_folder(monkeypatch, capsys):
     }
 
 
+def test_main_prints_results_and_exits_1_when_a_file_fails(
+    monkeypatch, capsys
+):
+    class _FailingModels(_FakeModels):
+        def generate_content(self, *, model, contents, config):
+            if "notes.txt" in contents:
+                return _FakeResponse(text=None)
+            return super().generate_content(
+                model=model, contents=contents, config=config
+            )
+
+    class _FailingClient:
+        def __init__(self, *args, **kwargs):
+            self.models = _FailingModels()
+
+    monkeypatch.setattr(
+        "llm_structured_output_extractor.gemini_client.genai.Client",
+        _FailingClient,
+    )
+    monkeypatch.setattr(
+        "sys.argv", ["llm_structured_output_extractor", str(FIXTURES_DIR)]
+    )
+
+    with pytest.raises(SystemExit) as exc_info:
+        main()
+
+    assert exc_info.value.code == 1
+    captured = capsys.readouterr()
+    assert len(json.loads(captured.out)) == 12
+    assert "notes.txt" in captured.err
+
+
 def test_main_exits_with_error_for_missing_folder(monkeypatch, capsys):
     monkeypatch.setattr(
         "sys.argv", ["llm_structured_output_extractor", "no-such-folder"]
