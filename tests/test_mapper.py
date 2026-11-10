@@ -189,6 +189,26 @@ def test_map_file_fields_for_multi_extension_file(fake_client):
     assert result["category"] == "archive"
 
 
+def test_map_file_does_not_let_llm_overwrite_file_info_fields():
+    llm_result = {
+        **_CANNED_LLM_RESULTS["notes.txt"],
+        "file_name": "from-llm.txt",
+        "size_bytes": 999,
+    }
+
+    class _Models:
+        def generate_content(self, *, model, contents, config):
+            return _FakeResponse(text=json.dumps(llm_result))
+
+    class _Client:
+        models = _Models()
+
+    result = map_file(FIXTURES_DIR / "notes.txt", client=_Client())
+
+    assert result["file_name"] == "notes.txt"
+    assert result["size_bytes"] == (FIXTURES_DIR / "notes.txt").stat().st_size
+
+
 def test_map_folder_returns_all_files_sorted_by_name(fake_client):
     results = map_folder(FIXTURES_DIR, client=fake_client)
 

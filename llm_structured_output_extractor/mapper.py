@@ -16,7 +16,7 @@ from llm_structured_output_extractor.llm_client import LLMClient
 from llm_structured_output_extractor.schema_convert import to_gemini_schema
 
 _SCHEMA_PATH = Path(__file__).resolve().parent.parent / "schema.json"
-_SCHEMA = json.loads(_SCHEMA_PATH.read_text())
+_SCHEMA = json.loads(_SCHEMA_PATH.read_text(encoding="utf-8"))
 
 _FILE_INFO_FIELDS = {
     "file_name",
@@ -62,13 +62,14 @@ def map_file(
 
     llm_result = extract_fields(name, _LLM_SCHEMA, client=client)
 
+    # LLM が同じ名前のキーを返しても、コード側の値を優先する
     result: dict[str, Any] = {
+        **llm_result,
         "file_name": name,
         "extension": Path(name).suffix,
         "is_multi_extension": len(Path(name).suffixes) > 1,
         "size_bytes": info.size,
         "modified_at": info.mtime.isoformat(),
-        **llm_result,
     }
 
     validate(instance=result, schema=_SCHEMA)
