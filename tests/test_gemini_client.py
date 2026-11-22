@@ -2,7 +2,9 @@
 リクエスト内容・レスポンス解釈を検証する（decisions/0004 参照）。"""
 
 from dataclasses import dataclass
+from typing import Any
 
+import pytest
 from google.genai import types
 
 from llm_structured_output_extractor.gemini_client import extract_fields
@@ -14,11 +16,13 @@ class _FakeResponse:
 
 
 class _FakeModels:
-    def __init__(self, response_text):
+    def __init__(self, response_text: str | None):
         self.response_text = response_text
-        self.calls = []
+        self.calls: list[dict[str, Any]] = []
 
-    def generate_content(self, *, model, contents, config):
+    def generate_content(
+        self, *, model: str, contents: str, config: types.GenerateContentConfig
+    ):
         self.calls.append(
             {"model": model, "contents": contents, "config": config}
         )
@@ -26,7 +30,7 @@ class _FakeModels:
 
 
 class _FakeClient:
-    def __init__(self, response_text):
+    def __init__(self, response_text: str | None):
         self.models = _FakeModels(response_text)
 
 
@@ -69,10 +73,12 @@ def test_extract_fields_uses_given_model_name():
     assert fake_client.models.calls[0]["model"] == "gemini-test-model"
 
 
-def test_extract_fields_creates_client_with_retry_options(monkeypatch):
-    created = {}
+def test_extract_fields_creates_client_with_retry_options(
+    monkeypatch: pytest.MonkeyPatch,
+):
+    created: dict[str, Any] = {}
 
-    def fake_client_factory(**kwargs):
+    def fake_client_factory(**kwargs: Any):
         created.update(kwargs)
         return _FakeClient('{"category": "document", "is_hidden": false}')
 

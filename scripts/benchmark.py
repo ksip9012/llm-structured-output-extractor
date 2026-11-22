@@ -24,13 +24,13 @@ from jsonschema.exceptions import SchemaError, ValidationError
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from llm_structured_output_extractor.file_lister import (  # noqa: E402
+from llm_structured_output_extractor.file_lister import (
     list_files,
 )
-from llm_structured_output_extractor.gemini_client import (  # noqa: E402
+from llm_structured_output_extractor.gemini_client import (
     DEFAULT_MODEL,
 )
-from llm_structured_output_extractor.mapper import map_file  # noqa: E402
+from llm_structured_output_extractor.mapper import map_file
 
 _FIXTURES = Path(__file__).resolve().parent.parent / "fixtures/sample_folder"
 _MAX_RETRIES = 5

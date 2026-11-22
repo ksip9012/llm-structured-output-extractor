@@ -26,14 +26,25 @@ package = false
 line-length = 79
 
 [tool.ruff.lint]
-# ひな形に置き換えたときの厳しさは今のまま。ルールを増やすのは別の Issue で行う
-select = ["E", "W", "F"]
+select = [
+  "E",     # pycodestyle errors
+  "W",     # pycodestyle warnings
+  "F",     # pyflakes
+  "I",     # isort
+  "B",     # flake8-bugbear
+  "UP",    # pyupgrade
+  "SIM",   # flake8-simplify
+  "N",     # pep8-naming
+  "RUF",   # Ruff
+]
+# docstring やコメントを日本語で書くので、全角の文字（（）、：など）を止めるルールは外す
+ignore = ["RUF001", "RUF002", "RUF003"]
 
 [tool.pyright]
-# まず basic から始める。strict にするのは別の Issue で行う
-typeCheckingMode = "basic"
+typeCheckingMode = "strict"
 include = ["llm_structured_output_extractor", "tests", "scripts", "conftest.py"]
 exclude = ["**/__pycache__", "**/.venv"]
+reportMissingTypeStubs = false
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

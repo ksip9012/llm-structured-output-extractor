@@ -28,7 +28,7 @@ def _convert_property(prop_schema: dict[str, Any]) -> types.Schema:
     schema には引き継がず、`description` に文言として埋め込むことで
     モデルに形式を伝える。
     """
-    json_type = prop_schema["type"]
+    json_type: str | list[str] = prop_schema["type"]
     nullable = False
     if isinstance(json_type, list):
         non_null_types = [t for t in json_type if t != "null"]
