@@ -2,10 +2,12 @@
 （decisions/0004 参照）。"""
 
 import json
-from pathlib import Path
 from dataclasses import dataclass
+from pathlib import Path
+from typing import Any
 
 import pytest
+from google.genai import types
 
 from llm_structured_output_extractor.__main__ import main
 
@@ -33,16 +35,20 @@ class _FakeResponse:
 
 
 class _FakeModels:
-    def generate_content(self, *, model, contents, config):
+    def generate_content(
+        self, *, model: str, contents: str, config: types.GenerateContentConfig
+    ):
         return _FakeResponse(text=_STATIC_LLM_RESPONSE)
 
 
 class _FakeClient:
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any):
         self.models = _FakeModels()
 
 
-def test_main_prints_json_array_for_folder(monkeypatch, capsys):
+def test_main_prints_json_array_for_folder(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+):
     monkeypatch.setattr(
         "llm_structured_output_extractor.gemini_client.genai.Client",
         _FakeClient,
@@ -61,10 +67,16 @@ def test_main_prints_json_array_for_folder(monkeypatch, capsys):
 
 
 def test_main_prints_results_and_exits_1_when_a_file_fails(
-    monkeypatch, capsys
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ):
     class _FailingModels(_FakeModels):
-        def generate_content(self, *, model, contents, config):
+        def generate_content(
+            self,
+            *,
+            model: str,
+            contents: str,
+            config: types.GenerateContentConfig,
+        ):
             if "notes.txt" in contents:
                 return _FakeResponse(text=None)
             return super().generate_content(
@@ -72,7 +84,7 @@ def test_main_prints_results_and_exits_1_when_a_file_fails(
             )
 
     class _FailingClient:
-        def __init__(self, *args, **kwargs):
+        def __init__(self, *args: Any, **kwargs: Any):
             self.models = _FailingModels()
 
     monkeypatch.setattr(
@@ -92,7 +104,9 @@ def test_main_prints_results_and_exits_1_when_a_file_fails(
     assert "notes.txt" in captured.err
 
 
-def test_main_exits_with_error_for_missing_folder(monkeypatch, capsys):
+def test_main_exits_with_error_for_missing_folder(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+):
     monkeypatch.setattr(
         "sys.argv", ["llm_structured_output_extractor", "no-such-folder"]
     )

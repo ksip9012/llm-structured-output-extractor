@@ -3,11 +3,11 @@
 schema.json 検証ロジックを検証する（decisions/0004 参照）。"""
 
 import json
-from pathlib import Path
 from dataclasses import dataclass
+from pathlib import Path
 
 import pytest
-from google.genai import errors
+from google.genai import errors, types
 
 from llm_structured_output_extractor.mapper import map_file, map_folder
 
@@ -145,7 +145,9 @@ class _FakeResponse:
 
 
 class _FakeModels:
-    def generate_content(self, *, model, contents, config):
+    def generate_content(
+        self, *, model: str, contents: str, config: types.GenerateContentConfig
+    ):
         for filename, fields in _CANNED_LLM_RESULTS.items():
             if filename in contents:
                 return _FakeResponse(text=json.dumps(fields))
@@ -158,18 +160,20 @@ class _FakeClient:
 
 
 @pytest.fixture
-def fake_client():
+def fake_client() -> _FakeClient:
     return _FakeClient()
 
 
 @pytest.mark.parametrize("filename", list(_CANNED_LLM_RESULTS))
-def test_map_file_validates_against_schema(filename, fake_client):
+def test_map_file_validates_against_schema(
+    filename: str, fake_client: _FakeClient
+):
     result = map_file(FIXTURES_DIR / filename, client=fake_client)
 
     assert result["file_name"] == filename
 
 
-def test_map_file_fields_for_versioned_file(fake_client):
+def test_map_file_fields_for_versioned_file(fake_client: _FakeClient):
     result = map_file(FIXTURES_DIR / "draft_v1.md", client=fake_client)
 
     assert result["extension"] == ".md"
@@ -182,7 +186,9 @@ def test_map_file_fields_for_versioned_file(fake_client):
     assert result["normalized_title"] == "draft"
 
 
-def test_map_file_fields_for_multi_extension_file(fake_client):
+def test_map_file_fields_for_multi_extension_file(
+    fake_client: _FakeClient,
+):
     result = map_file(FIXTURES_DIR / "archive.tar.gz", client=fake_client)
 
     assert result["extension"] == ".gz"
@@ -198,7 +204,13 @@ def test_map_file_does_not_let_llm_overwrite_file_info_fields():
     }
 
     class _Models:
-        def generate_content(self, *, model, contents, config):
+        def generate_content(
+            self,
+            *,
+            model: str,
+            contents: str,
+            config: types.GenerateContentConfig,
+        ):
             return _FakeResponse(text=json.dumps(llm_result))
 
     class _Client:
@@ -210,7 +222,9 @@ def test_map_file_does_not_let_llm_overwrite_file_info_fields():
     assert result["size_bytes"] == (FIXTURES_DIR / "notes.txt").stat().st_size
 
 
-def test_map_folder_returns_all_files_sorted_by_name(fake_client):
+def test_map_folder_returns_all_files_sorted_by_name(
+    fake_client: _FakeClient,
+):
     results = map_folder(FIXTURES_DIR, client=fake_client)
 
     assert [r["file_name"] for r in results] == sorted(
@@ -233,9 +247,17 @@ def test_map_folder_returns_all_files_sorted_by_name(fake_client):
     ],
     ids=["api_error", "empty", "invalid_json", "schema_violation"],
 )
-def test_map_folder_records_error_and_continues(failure):
+def test_map_folder_records_error_and_continues(
+    failure: Exception | _FakeResponse,
+):
     class _Models(_FakeModels):
-        def generate_content(self, *, model, contents, config):
+        def generate_content(
+            self,
+            *,
+            model: str,
+            contents: str,
+            config: types.GenerateContentConfig,
+        ):
             if "notes.txt" not in contents:
                 return super().generate_content(
                     model=model, contents=contents, config=config

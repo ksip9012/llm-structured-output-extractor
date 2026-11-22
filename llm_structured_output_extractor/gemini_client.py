@@ -22,6 +22,15 @@ _PROMPT_TEMPLATE = (
 )
 
 
+def _default_client() -> LLMClient:
+    """環境変数から本物の `genai.Client` を作り、`LLMClient` として返す。
+
+    `LLMClient` として返すのは、呼ぶ側で SDK の `generate_content` の型
+    （一部が型のわからない引数を含む）を見ずに、Protocol の型で扱うため。
+    """
+    return genai.Client(http_options=_HTTP_OPTIONS)
+
+
 def extract_fields(
     filename: str,
     schema: types.Schema,
@@ -44,7 +53,7 @@ def extract_fields(
     Returns:
         schema の各プロパティに対応する値を持つ辞書。
     """
-    client = client or genai.Client(http_options=_HTTP_OPTIONS)
+    client = client or _default_client()
     response = client.models.generate_content(
         model=model,
         contents=_PROMPT_TEMPLATE.format(filename=filename),

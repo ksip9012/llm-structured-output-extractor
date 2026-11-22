@@ -20,10 +20,12 @@ run = [
 ]
 
 [tasks.fix]
-description = "lint の自動修正と format"
+description = "lint の自動修正と format。自動で直せないエラーが残ったら、最後に出して失敗する"
+# 1つ目で止まると format まで進まないので、--exit-zero で先に進め、残ったエラーは最後の check で出す
 run = [
-  "uv run ruff check --fix .",
+  "uv run ruff check --fix --exit-zero --silent .",
   "uv run ruff format .",
+  "uv run ruff check .",
 ]
 
 # ライブラリと開発の道具を上げる。作業を始めるときに、本来の作業とは別のコミットで回す
